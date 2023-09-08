@@ -1,10 +1,12 @@
 import java.io.*;
+import java.net.URLConnection;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.Arrays;
+import java.net.URL;
 
 public class FileCopy {
 
-    static int BUFFER_SIZE = 1024;
+    static int BUFFER_SIZE = 1448;
 
     public static void main(String[] args) throws IOException {
         System.out.println(Arrays.toString(args));
@@ -13,13 +15,13 @@ public class FileCopy {
             throw new IllegalArgumentException("Invalid number of arguments");
         }
 
-        String input = args[0];
+        URL input = new URL(args[0]);
         String destination = args[1];
 
-        File inputFile = new File(input);
+        URLConnection connection = input.openConnection();
         File outputFile = new File(destination);
 
-        if (!inputFile.exists()) {
+        if (connection == null) {
             System.out.println("File " + input + " does not exist");
             throw new FileNotFoundException("File does not exist");
         }
@@ -31,7 +33,7 @@ public class FileCopy {
 
         long startTime = 0;
 
-        try (InputStream inputStream = new BufferedInputStream(new FileInputStream(inputFile)); OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+        try (InputStream inputStream = new BufferedInputStream(connection.getInputStream()); OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile))) {
             byte[] buffer = new byte[BUFFER_SIZE];
             int length;
             startTime = System.currentTimeMillis();
